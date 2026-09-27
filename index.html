@@ -11,11 +11,62 @@
     line-height: 1.5;
     color: #111;
     max-width: 42em;
-    margin: 2em auto;
-    padding: 0 1.5em;
+    margin: 0 auto;
+    padding: 0 1.5em 2em;
+  }
+  .jump {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0 -1.5em 1.5em;
+    padding: 0.6rem 1rem;
+    background: #1c1a16;
+    color: #f3efe6;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+  .jump a {
+    color: #f3efe6;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .jump label {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+  }
+  .jump select {
+    width: 100%;
+    font-size: 16px;
+    line-height: 1.3;
+    padding: 0.5rem 0.55rem;
+    border: 0;
+    border-radius: 4px;
+    background: #f3efe6;
+    color: #1c1a16;
+    -webkit-appearance: auto;
+    appearance: auto;
+  }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
   h1 { font-size: 28px; margin: 0 0 1.2em; }
-  h2 { font-size: 22px; margin: 1.8em 0 0.3em; page-break-before: always; }
+  h2 { font-size: 22px; margin: 1.8em 0 0.3em; page-break-before: always; scroll-margin-top: 3.75rem; }
   h2:first-of-type { page-break-before: auto; }
   h3 { font-size: 16px; margin: 1.4em 0 0.4em; }
   h4 { font-size: 15px; margin: 1em 0 0.3em; font-weight: bold; }
@@ -57,7 +108,26 @@
 </style>
 </head>
 <body>
-<h1>Ten loops</h1>
+<nav class="jump" aria-label="Jump to a loop">
+  <a href="#top">Ten loops</a>
+  <label>
+    <span class="sr-only">Jump to a loop</span>
+    <select id="jump-select">
+      <option value="#top">Jump to…</option>
+      <option value="#the-hydra">The Hydra</option>
+      <option value="#the-magpie">The Magpie</option>
+      <option value="#antigone">Antigone</option>
+      <option value="#the-emperors-clothes">The Emperor’s Clothes</option>
+      <option value="#the-labyrinth">The Labyrinth</option>
+      <option value="#the-portrait">The Portrait</option>
+      <option value="#the-iron-mask">The Iron Mask</option>
+      <option value="#the-herald">The Herald</option>
+      <option value="#cassandra">Cassandra</option>
+      <option value="#icarus">Icarus</option>
+    </select>
+  </label>
+</nav>
+<h1 id="top">Ten loops</h1>
 <h2 id="the-hydra">The Hydra</h2>
 <p class="subtitle"><em>When finding problems to solve leaves people more confused about what you do</em></p>
 <p><img src="images/01-the-hydra.png" alt="The Hydra"></p>
@@ -418,5 +488,28 @@
 <li><strong>Skepticism</strong> sharpens your attention to what is off, but limited context can turn uncertainty into invented explanations and threat responses. Across repeated exits, it compounds into distrust and cynicism, making each new company easier to read as another confirmation of the same pattern.</li>
 </ul>
 
+<script>
+(function () {
+  var select = document.getElementById("jump-select");
+  if (!select) return;
+  select.addEventListener("change", function () {
+    var id = select.value;
+    if (!id) return;
+    var el = document.querySelector(id);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (history.replaceState) history.replaceState(null, "", id);
+  });
+  var headings = document.querySelectorAll("h2[id], h1#top");
+  if (!("IntersectionObserver" in window) || !headings.length) return;
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      var hash = "#" + entry.target.id;
+      if (select.value !== hash) select.value = hash;
+    });
+  }, { rootMargin: "-20% 0px -65% 0px", threshold: 0 });
+  headings.forEach(function (h) { observer.observe(h); });
+})();
+</script>
 </body>
 </html>
